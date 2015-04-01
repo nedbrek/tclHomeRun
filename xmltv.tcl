@@ -64,18 +64,24 @@ proc channelsToDb {db root} {
 	$db eval {END TRANSACTION}
 }
 
+proc loadXmlFile {filename} {
+	set f [open $filename]
+	set root [dom parse -channel $f]
+	close $f
+
+	return $root
+}
 
 #################################
 sqlite3 db "xmltv.db"
 
-set f [open "listings.xml"]
-set root [dom parse -channel $f]
-close $f
-
-#set chnGrp [hashChannels $root]
-channelsToDb db $root
-
+# handy code to copy/paste
 if {0} {
+	set root [loadXmlFile "listings.xml"]
+	set chnGrp [hashChannels $root]
+
+	channelsToDb db $root
+
 	set chns [db eval {SELECT id, nodes from channels WHERE nodes LIKE $chnName}]
 	foreach {id nodes} $chns { puts "[dict get $nodes display-name]" }
 }
